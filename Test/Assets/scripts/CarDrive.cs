@@ -8,6 +8,16 @@ public class CarDrive : MonoBehaviour
     public float Turnspeed;
     private Rigidbody rb;
     public float Grevitymul;
+
+    bool isGrounded = true;
+    //bool boostready = true;
+
+
+    public float booststart = 0f;
+    public float boostCooldown = 2f; // 2 = two seconds 
+
+
+
     // start is called before the first frame update
     void Start()
     {
@@ -19,23 +29,52 @@ public class CarDrive : MonoBehaviour
     {
         Turn();
         Move();
-        //turn();
         Fall();
+    }
+
+
+    private void OnCollisionExit(Collision collision)
+    {
+        rb.AddRelativeForce(new Vector3(Vector3.forward.x, 0, Vector3.forward.z) * Speed * 20);  // Speed  * 200 war eigentlich ganz witzig 
+        new WaitForSeconds(0.3F);   // WIP
+        isGrounded = false;        // WIP
+    }
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        //new WaitForSeconds(0.1F);  // WIP
+        isGrounded = true;        // WIP
     }
 
     void Move()
     {
-        if (Input.GetKey(KeyCode.W))
+        if (Input.GetKey(KeyCode.W) && isGrounded)  // WIP
         {
+           
             rb.AddRelativeForce(new Vector3(Vector3.forward.x, 0, Vector3.forward.z) * Speed * 10);
         }
-        else if (Input.GetKey(KeyCode.S))
+        else if (Input.GetKey(KeyCode.S) && isGrounded)  // WIP
         {
+            
             rb.AddRelativeForce(new Vector3(Vector3.forward.x, 0, Vector3.forward.z) * -Speed * 10);
         }
         //Vector3 localvel = transform.InverseTransformDirection(rb.velocity);
         //localvel.x = 0;
         //rb.velocity = transform.TransformDirection(localvel);
+        if (Input.GetKey(KeyCode.Q) && Time.time > booststart + boostCooldown)
+        {
+            booststart = Time.time;
+            rb.AddRelativeForce(new Vector3(Vector3.forward.x, 0, Vector3.forward.z) * Speed * 200);
+            
+            //boostready = false;
+            //float timeRemaining = 10;
+            //while(timeRemaining > 0)
+            //{
+            //    Debug.Log(timeRemaining);
+            //    timeRemaining -= Time.deltaTime;
+            //}
+            //boostready = true;
+        }
 
         Vector3 locVel = transform.InverseTransformDirection(rb.velocity);
         locVel = new Vector3(0, locVel.y, locVel.z);
@@ -44,11 +83,11 @@ public class CarDrive : MonoBehaviour
 
     void Turn()
     {
-        if (Input.GetKey(KeyCode.D))
+        if (Input.GetKey(KeyCode.D) && isGrounded)   // WIP
         {
             rb.AddTorque(Vector3.up * Turnspeed * 10);
         }
-        else if (Input.GetKey(KeyCode.A))
+        else if (Input.GetKey(KeyCode.A) && isGrounded)   // WIP
         {
             rb.AddTorque(-Vector3.up * Turnspeed * 10);
         }
